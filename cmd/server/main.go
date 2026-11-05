@@ -31,7 +31,12 @@ func main() {
 		log.Fatalf("Failed to create a AMQP channel: %v", err)
 	}
 
-	if err := pubsub.PublishJSON(ch, routing.ExchangePerilDirect, routing.PauseKey, routing.PlayingState{IsPaused: true}); err != nil {
+	if err := pubsub.PublishJSON(
+		ch,
+		routing.ExchangePerilDirect,
+		routing.PauseKey,
+		routing.PlayingState{IsPaused: true},
+	); err != nil {
 		log.Fatalf("Failed to publish a message: %v", err)
 	}
 
