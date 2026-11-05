@@ -1,3 +1,5 @@
+run-server:
+	go run ./cmd/server
 fmt:
 	golangci-lint fmt
 lint:
