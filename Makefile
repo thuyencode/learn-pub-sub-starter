@@ -1,7 +1,9 @@
 dev:
 	air
-run:
+server-run:
 	go run ./cmd/server
+client-run:
+	go run ./cmd/client
 fmt:
 	golangci-lint fmt
 lint:
