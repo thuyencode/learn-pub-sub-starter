@@ -1,4 +1,6 @@
-run-server:
+dev:
+	air
+run:
 	go run ./cmd/server
 fmt:
 	golangci-lint fmt
