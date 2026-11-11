@@ -48,6 +48,7 @@ func DeclareAndBind(
 	durable := queueType == DurableQueue
 	autoDelete := queueType == TransientQueue
 	exclusive := queueType == TransientQueue
+
 	queue, err := ch.QueueDeclare(queueName, durable, autoDelete, exclusive, false, nil)
 	if err != nil {
 		return nil, amqp.Queue{}, err
