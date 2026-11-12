@@ -31,17 +31,18 @@ func main() {
 		log.Fatalf("Failed to get username: %v", err)
 	}
 
-	if _, _, err := pubsub.DeclareAndBind(
+	gs := gamelogic.NewGameState(username)
+
+	if err := pubsub.SubscribeJSON(
 		conn,
 		routing.ExchangePerilDirect,
 		"pause."+username,
 		routing.PauseKey,
 		pubsub.TransientQueue,
+		handlerPause(gs),
 	); err != nil {
-		log.Fatalf("Failed to declare and bind a queue: %v", err)
+		log.Fatalf("Failed to subscribe: %v", err)
 	}
-
-	gameState := gamelogic.NewGameState(username)
 
 loop:
 	for {
@@ -54,21 +55,22 @@ loop:
 		case "spawn":
 			if len(input[0:]) < 3 {
 				fmt.Println(`Not enough arguments. See "help"`)
-			} else if err := gameState.CommandSpawn(input[0:]); err != nil {
+			} else if err := gs.CommandSpawn(input[0:]); err != nil {
 				fmt.Println(err)
 			}
 		case "move":
 			if len(input[0:]) < 3 {
 				fmt.Println(`Not enough arguments. See "help"`)
 			} else {
-				move, err := gameState.CommandMove(input[0:])
+				move, err := gs.CommandMove(input[0:])
 				if err != nil {
 					fmt.Println(err)
+				} else {
+					fmt.Printf("Moved to %s\n", move.ToLocation)
 				}
-				fmt.Printf("Moved to %s\n", move.ToLocation)
 			}
 		case "status":
-			gameState.CommandStatus()
+			gs.CommandStatus()
 		case "spam":
 			fmt.Println("Spamming not allowed yet!")
 		case "help":
@@ -79,5 +81,12 @@ loop:
 		default:
 			fmt.Println("No such command")
 		}
+	}
+}
+
+func handlerPause(gs *gamelogic.GameState) func(routing.PlayingState) {
+	return func(ps routing.PlayingState) {
+		defer fmt.Print("> ")
+		gs.HandlePause(ps)
 	}
 }
