@@ -30,14 +30,17 @@ func main() {
 		log.Fatalf("Failed to create a AMQP channel: %v", err)
 	}
 
-	if err := pubsub.PublishJSON(
-		ch,
-		routing.ExchangePerilDirect,
-		routing.PauseKey,
-		routing.PlayingState{IsPaused: true},
-	); err != nil {
-		log.Fatalf("Failed to publish a message: %v", err)
+	_, queue, err := pubsub.DeclareAndBind(
+		conn,
+		routing.ExchangePerilTopic,
+		routing.GameLogSlug,
+		routing.GameLogSlug+".*",
+		pubsub.DurableQueue,
+	)
+	if err != nil {
+		log.Fatalf("Failed to declare and bind a queue: %v", err)
 	}
+	log.Printf("Queue %s declared and bound", queue.Name)
 
 	gamelogic.PrintServerHelp()
 
